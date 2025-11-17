@@ -258,7 +258,208 @@ console.log(admin);`,
     answer: 'B',
     explanation: "The spread syntax `...` copies the properties from the `user` object into the new `admin` object at the top level."
   },
-   {
+  {
+    id: 16,
+    question: "What's the output?",
+    code: `const user = {
+  name: 'Lydia',
+  info: { age: 21 },
+};
+
+Object.freeze(user);
+
+user.name = 'Sarah';
+user.info.age = 22;
+
+console.log(user.name);
+console.log(user.info.age);`,
+    options: [
+      { letter: 'A', text: '`Lydia` and `21`' },
+      { letter: 'B', text: '`Lydia` and `22`' },
+      { letter: 'C', text: '`Sarah` and `21`' },
+      { letter: 'D', text: '`Sarah` and `22`' },
+    ],
+    answer: 'B',
+    explanation: "`Object.freeze` prevents changes to the top-level properties of the `user` object, so `name` stays 'Lydia'. It is shallow, so the nested `info` object is still mutable, and `age` can be updated to `22`."
+  },
+  {
+    id: 17,
+    question: "What happens when this code runs?",
+    code: `const defaultColor = 'blue';
+
+function setColor(color = defaultColor, defaultColor = 'green') {
+  console.log(color, defaultColor);
+}
+
+setColor();`,
+    options: [
+      { letter: 'A', text: '`"blue" "green"` is logged' },
+      { letter: 'B', text: '`"green" "green"` is logged' },
+      { letter: 'C', text: '`"blue" "undefined"` is logged' },
+      { letter: 'D', text: '`ReferenceError` is thrown before anything is logged' },
+    ],
+    answer: 'D',
+    explanation: "Default parameter values are evaluated left to right in their own scope. While evaluating the default for `color`, the parameter `defaultColor` shadows the outer variable but is still in the temporal dead zone, so accessing it causes a `ReferenceError`."
+  },
+  {
+    id: 18,
+    question: "What's the output?",
+    code: `function User() {}
+User.prototype.sayHi = function () {
+  return 'Hi';
+};
+
+const user = new User();
+
+user.sayHi = () => 'Hello';
+delete user.sayHi;
+
+console.log(user.sayHi());`,
+    options: [
+      { letter: 'A', text: '`"Hello"`' },
+      { letter: 'B', text: '`"Hi"`' },
+      { letter: 'C', text: '`undefined`' },
+      { letter: 'D', text: '`TypeError`' },
+    ],
+    answer: 'B',
+    explanation: "The own property `sayHi` added to `user` is deleted, so property lookup falls back to the method on `User.prototype`, which returns 'Hi'."
+  },
+  {
+    id: 19,
+    question: "What's the output?",
+    code: `const obj = {
+  value: 42,
+  getValue() {
+    return this.value;
+  },
+};
+
+const fn = obj.getValue;
+
+console.log(fn.call({ value: 10 }), fn());`,
+    options: [
+      { letter: 'A', text: '`42 42`' },
+      { letter: 'B', text: '`10 42`' },
+      { letter: 'C', text: '`10 undefined`' },
+      { letter: 'D', text: '`undefined undefined`' },
+    ],
+    answer: 'C',
+    explanation: "`fn.call({ value: 10 })` sets `this` to the provided object, so it returns `10`. The plain call `fn()` loses the object context; in strict-mode modules `this` is `undefined`, so `this.value` is also `undefined`."
+  },
+  {
+    id: 20,
+    question: "What's the output?",
+    code: `const p1 = Promise.resolve(1);
+const p2 = Promise.reject('error');
+
+Promise.allSettled([p1, p2]).then(results => {
+  console.log(results[0].status, results[1].status);
+});`,
+    options: [
+      { letter: 'A', text: '`"fulfilled" "rejected"`' },
+      { letter: 'B', text: '`"fulfilled" "fulfilled"`' },
+      { letter: 'C', text: '`"rejected" "rejected"`' },
+      { letter: 'D', text: '`"rejected" "fulfilled"`' },
+    ],
+    answer: 'A',
+    explanation: "`Promise.allSettled` waits for all promises to settle and returns an array of result objects. The resolved promise has `status: 'fulfilled'`, while the rejected one has `status: 'rejected'`."
+  },
+  {
+    id: 21,
+    question: "What's the output?",
+    code: `const arr = [1, 2, 3];
+
+const result = arr.flatMap(x => [x, x * 2]).filter(x => x % 2 === 0);
+
+console.log(result);`,
+    options: [
+      { letter: 'A', text: '`[2, 4, 6]`' },
+      { letter: 'B', text: '`[1, 2, 3, 2, 4, 6]`' },
+      { letter: 'C', text: '`[2, 2, 4]`' },
+      { letter: 'D', text: '`[4]`' },
+    ],
+    answer: 'A',
+    explanation: "`flatMap` maps each number to `[x, x * 2]` and flattens, producing `[1, 2, 2, 4, 3, 6]`. Filtering for even numbers leaves `[2, 4, 6]`."
+  },
+  {
+    id: 22,
+    question: "What's the output?",
+    code: `async function* gen() {
+  yield 1;
+  yield Promise.resolve(2);
+  yield 3;
+}
+
+(async () => {
+  const values = [];
+  for await (const v of gen()) {
+    values.push(v);
+  }
+  console.log(values);
+})();`,
+    options: [
+      { letter: 'A', text: '`[1, Promise { 2 }, 3]`' },
+      { letter: 'B', text: '`[1, 2, 3]`' },
+      { letter: 'C', text: '`[Promise { 1 }, Promise { 2 }, Promise { 3 }]`' },
+      { letter: 'D', text: '`[1, 3]`' },
+    ],
+    answer: 'B',
+    explanation: "`for await...of` awaits each yielded value. Even though the second yield is a `Promise`, the loop waits for it to resolve and pushes the resolved value `2`, resulting in `[1, 2, 3]`."
+  },
+  {
+    id: 23,
+    question: "Which statement about `WeakMap` is true?",
+    options: [
+      { letter: 'A', text: 'Keys can be any primitive or object, just like in `Map`.' },
+      { letter: 'B', text: 'Its keys are held weakly and must be objects, allowing garbage collection when there are no other references.' },
+      { letter: 'C', text: 'It exposes a `.size` property that always reflects the number of entries.' },
+      { letter: 'D', text: 'You can iterate over its entries with `for...of`.' },
+    ],
+    answer: 'B',
+    explanation: "`WeakMap` keys must be objects and are held weakly, so if there are no other references to a key object, it can be garbage-collected, and the entry disappears. For this reason, `WeakMap` is not iterable and does not have a reliable `size`."
+  },
+  {
+    id: 24,
+    question: "What's the output?",
+    code: `const obj = {
+  value: 1,
+  toJSON() {
+    return this.value * 2;
+  },
+};
+
+console.log(JSON.stringify(obj));`,
+    options: [
+      { letter: 'A', text: '`"{"value":1}"`' },
+      { letter: 'B', text: '`"{"value":2}"`' },
+      { letter: 'C', text: '`"2"`' },
+      { letter: 'D', text: '`{ value: 2 }`' },
+    ],
+    answer: 'C',
+    explanation: "If an object defines a `toJSON` method, `JSON.stringify` uses its return value as the serialized form. The method returns the number `2`, so the final JSON string is `'2'`."
+  },
+  {
+    id: 25,
+    question: "What's the output?",
+    code: `function tag(strings, ...values) {
+  console.log(strings[0]);
+  console.log(strings[1]);
+  console.log(values[0]);
+}
+
+const name = 'Lydia';
+tag\`Hello \${name}!\`;`,
+    options: [
+      { letter: 'A', text: '`"Hello "`, `"!"`, `"Lydia"`' },
+      { letter: 'B', text: '`["Hello ", "!"]`, `["Lydia"]`' },
+      { letter: 'C', text: '`"Hello Lydia!"`, `"Lydia"`, `"!"`' },
+      { letter: 'D', text: '`"Hello "`, `"Lydia"`, `"!"`' },
+    ],
+    answer: 'A',
+    explanation: "In tagged templates, the first argument is an array of literal string segments. For ``tag`Hello ${name}!``, `strings` is `['Hello ', '!']` and `values` is `['Lydia']`, so the three logs are `'Hello '`, `'!'`, and `'Lydia'`."
+  },
+  {
+    id: 26,
     id: 26,
     question: "The JavaScript global execution context creates two things for you: the global object, and the 'this' keyword.",
     options: [
@@ -2734,7 +2935,48 @@ Object[method](keys.map((_, i) => {
     answer: 'C',
     explanation: '`Object.fromEntries()` transforms a list of key-value pairs into an object. The `.map()` call creates exactly this list, e.g., `[["name", "Lydia"], ["age", 22]]`.'
   },
+  {
+    id: 154,
+    question: "What's the output?",
+    code: `const settings = {
+  volume: 0,
+  duration: 0,
+};
 
+const volume = settings.volume || 10;
+const duration = settings.duration ?? 10;
+
+console.log(volume, duration);`,
+    options: [
+      { letter: 'A', text: '`0 0`' },
+      { letter: 'B', text: '`0 10`' },
+      { letter: 'C', text: '`10 0`' },
+      { letter: 'D', text: '`10 10`' },
+    ],
+    answer: 'C',
+    explanation: "The `||` operator treats `0` as falsy, so `volume` becomes the fallback `10`. The `??` operator only falls back for `null` or `undefined`; since `duration` is `0`, it stays `0`."
+  },
+  {
+    id: 155,
+    question: "What's the output?",
+    code: `async function foo() {
+  try {
+    return await Promise.reject('Error');
+  } catch (e) {
+    return 'Caught';
+  }
+}
+
+foo().then(console.log);`,
+    options: [
+      { letter: 'A', text: '`Error`' },
+      { letter: 'B', text: '`"Error"`' },
+      { letter: 'C', text: '`"Caught"`' },
+      { letter: 'D', text: '`undefined`' },
+    ],
+    answer: 'C',
+    explanation: "The rejected promise inside `await` throws within the `try` block and is caught by the `catch` clause. The function then returns `'Caught'`, so the resolved value logged by `.then` is `'Caught'`."
+  },
   {
     id: 156,
     question: "What's the output?",
@@ -3654,7 +3896,67 @@ console.log(Reflect.has(person, 'name'));`,
     answer: 'A',
     explanation: 'The `Reflect` object provides methods for interceptable JavaScript operations. `Reflect.has(target, propertyKey)` performs the same check as the `in` operator, returning a boolean indicating if the property exists on the object or its prototype chain.'
   },
-  
+  {
+    id: 213,
+    question: "What's the output?",
+    code: `const fn = new Proxy(function (x) {
+  return x * 2;
+}, {
+  apply(target, thisArg, args) {
+    return Reflect.apply(target, thisArg, args) + 1;
+  },
+});
+
+console.log(fn(5));`,
+    options: [
+      { letter: 'A', text: '`5`' },
+      { letter: 'B', text: '`10`' },
+      { letter: 'C', text: '`11`' },
+      { letter: 'D', text: '`TypeError`' },
+    ],
+    answer: 'C',
+    explanation: "The proxy's `apply` trap intercepts function calls. It calls the original function (doubling the argument to `10`) and then adds `1`, so the final result logged is `11`."
+  },
+  {
+    id: 214,
+    question: "What's the output?",
+    code: `try {
+  console.log(10n + 5);
+} catch (err) {
+  console.log(err.name);
+}`,
+    options: [
+      { letter: 'A', text: '`15n`' },
+      { letter: 'B', text: '`15`' },
+      { letter: 'C', text: '`"TypeError"`' },
+      { letter: 'D', text: '`"RangeError"`' },
+    ],
+    answer: 'C',
+    explanation: "You cannot mix `BigInt` and `Number` values in arithmetic operations. `10n + 5` throws a `TypeError`, which is caught and whose `name` property (`'TypeError'`) is logged."
+  },
+  {
+    id: 215,
+    question: "What's the output?",
+    code: `const person = {};
+Object.defineProperty(person, 'name', {
+  value: 'Lydia',
+  writable: false,
+  configurable: true,
+});
+
+person.name = 'Sarah';
+delete person.name;
+
+console.log(person.name);`,
+    options: [
+      { letter: 'A', text: '`"Lydia"`' },
+      { letter: 'B', text: '`"Sarah"`' },
+      { letter: 'C', text: '`undefined`' },
+      { letter: 'D', text: '`TypeError`' },
+    ],
+    answer: 'C',
+    explanation: "A non-writable property cannot have its value changed, so `person.name = 'Sarah'` is ignored in non-strict mode. However, because the property is `configurable: true`, it can be deleted. After `delete person.name`, the property is gone and accessing it yields `undefined`."
+  },
   {
     id: 216,
     question: "What is the purpose of an `AbortController`?",
@@ -4077,4 +4379,3 @@ console.log(rest);`,
 ];
 
   
-
